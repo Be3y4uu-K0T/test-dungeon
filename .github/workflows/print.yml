@@ -1,0 +1,13 @@
+name: Print
+
+on:
+  push:
+
+env:
+  GH_TOKEN: 1
+
+jobs:
+  job-1:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo $GH_TOKEN
