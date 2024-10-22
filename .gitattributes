@@ -1,0 +1,4 @@
+[attr]rust eol=lf whitespace=space-in-ident,trailing-space,indent-size=4
+
+*.rs diff=rust
+Cargo.lock linguest-genreated=true

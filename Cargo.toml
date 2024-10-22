@@ -1,0 +1,15 @@
+# https://doc.rust-lang.org/cargo
+[package]
+name = "test-dungeon"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+# https://doc.rust-lang.org/cargo/reference/profiles.html
+[profile.release]
+codegen-units = 1
+lto = true
+panic = "abort"
+split-debuginfo = "off"
+strip = true
