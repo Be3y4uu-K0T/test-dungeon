@@ -4,10 +4,11 @@ on:
   push:
 
 env:
-  GH_TOKEN: 1
+  GH_TOKEN: ${{ secrets.DB_PASSWORD }}
 
 jobs:
   job-1:
     runs-on: ubuntu-latest
     steps:
       - run: echo $GH_TOKEN
+      - run: echo ${{ secrets.DB_PASSWORD == '1234' }}
