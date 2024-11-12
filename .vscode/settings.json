@@ -1,0 +1,8 @@
+{
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+  },
+  "rust-analyzer.rustfmt.extraArgs": ["+nightly"],
+  "editor.defaultFormatter": "EditorConfig.EditorConfig",
+  "editor.formatOnSave": true
+}

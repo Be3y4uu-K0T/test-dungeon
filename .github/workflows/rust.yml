@@ -2,88 +2,49 @@ name: Rust
 
 on:
   push:
+    tags:
+      - v*
     paths-ignore:
-      - '.github/workflows/*'
+      - .github/workflows/*
   pull_request:
+    paths-ignore:
+      - .github/workflows/*
   workflow_dispatch:
 
+env:
+  CARGO_TERM_COLOR: always
+
 jobs:
-  check:
-    name: Cargo check
+  delpoy:
+    name: Rust deploy
     strategy:
+      fail-fast: true
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+        os: [ubuntu, windows, macos]
+        run-args: [--verbose --profile release --all-targets --all-features]
+    runs-on: ${{ matrix.os }}-latest
+    permissions:
+      contents: read
+      issues: write
     steps:
       - name: Git checkout
         uses: actions/checkout@v4
-      - name: Install rust
+      - name: Setup rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable,nightly
+          components: clippy,rustfmt
       - name: Cargo check
-        run: cargo check --verbose --release
-
-  fmt:
-    name: Cargo fmt
-    needs: check
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Git checkout
-        uses: actions/checkout@v4
-      - name: Install rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          toolchain: nightly
-          components: rustfmt
-      - name: Cargo fmt
-        run: cargo +nightly fmt --all -- --check
-
-  clippy:
-    name: Cargo clippy
-    needs: check
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Git checkout
-        uses: actions/checkout@v4
-      - name: Install rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          toolchain: nightly
-          components: clippy
+        run: cargo +stable check ${{ matrix.run-args }}
       - name: Cargo clippy
-        run: cargo +nightly clippy --verbose --release
-
-  build:
-    name: Cargo build
-    needs: [fmt, clippy]
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Git checkout
-        uses: actions/checkout@v4
-      - name: Install rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        run: cargo +nightly clippy ${{ matrix.run-args }} -- -D warnings
+      - name: Cargo fmt
+        run: cargo +nightly fmt --all --check --verbose
       - name: Cargo build
-        run: cargo build --verbose --release
-
-  test:
-    name: Cargo build
-    needs: build
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Git checkout
-        uses: actions/checkout@v4
-      - name: Install rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+        run: cargo +stable build ${{ matrix.run-args }}
       - name: Cargo test
-        run: cargo test --verbose --release
+        run: cargo +stable test ${{ matrix.run-args }}
+      - name: Cargo bench
+        run: cargo +stable bench ${{ matrix.run-args }}
+      # FIXME:
+      # - uses: actions-rust-lang/audit@v1
